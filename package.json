@@ -1,0 +1,32 @@
+{
+  "name": "package-install",
+  "version": "1.0.0",
+  "description": "Install modules only if they do not exit; supports version tags, github packages, and promises",
+  "main": "index.js",
+  "mocha_opts": "-u tdd --compilers coffee:coffee-script/register --slow 8000 --timeout 15000",
+  "scripts": {
+    "test": "mocha $npm_package_mocha_opts --bail",
+    "test:travis": "CI=1 mocha $npm_package_mocha_opts"
+  },
+  "author": "danielkalen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielkalen/package-install"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^3.5.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "chalk": "^2.1.0",
+    "coffee-register": "^0.1.2",
+    "coffee-script": "^1.12.7",
+    "execa": "^0.8.0",
+    "fast-memoize": "^2.2.8",
+    "fs-jetpack": "^1.2.0",
+    "promise-break": "^0.1.2",
+    "semver": "^5.4.1"
+  }
+}

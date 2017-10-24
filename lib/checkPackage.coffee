@@ -5,7 +5,8 @@ Path = require 'path'
 fs = require 'fs-jetpack'
 
 
-isInstalled = (targetModule)->
+isInstalled = (targetModule, options={})->
+	options.cwd ?= process.cwd()
 	targetModule = targetModule[0] if typeof targetModule is 'object'
 	
 	if (split=targetModule.split('@')) and split[0].length
@@ -15,7 +16,7 @@ isInstalled = (targetModule)->
 	if /^github:.+?\//.test(targetModule)
 		targetModule = targetModule.replace /^github:.+?\//, ''
 	
-	pkgFile = Path.resolve('node_modules',targetModule,'package.json')
+	pkgFile = Path.resolve(options.cwd,'node_modules',targetModule,'package.json')
 	Promise.resolve()
 		.then ()-> fs.existsAsync(pkgFile)
 		.tap (exists)-> promiseBreak(exists) if not targetVersion? or not exists
@@ -25,9 +26,9 @@ isInstalled = (targetModule)->
 		.catch promiseBreak.end	
 
 
-notInstalled = (targetModule)->
-	Promise.resolve(targetModule)
-		.then isInstalled
+notInstalled = (targetModule, options)->
+	Promise.resolve([targetModule, options])
+		.spread isInstalled
 		.then (installed)-> not installed
 
 

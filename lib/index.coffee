@@ -8,7 +8,7 @@ module.exports = (targets, options)->
 	return installed if not Array.isArray(targets)
 	
 	Promise.resolve(targets)
-		.filter require('./checkPackage').notInstalled
+		.filter (module)-> require('./checkPackage').notInstalled(module, options)
 		.filter (module)-> if typeof module is 'string' then true else module[1]()
 		.map (module)-> if typeof module is 'string' then module else module[0]
 		.tap (targetModules)-> promiseBreak() if targetModules.length is 0

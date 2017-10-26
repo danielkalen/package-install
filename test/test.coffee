@@ -62,6 +62,30 @@ suite "package-install", ()->
 			.then (version)-> expect(version).to.equal '2.0.0'
 
 
+	test "supports range version tags", ()->
+		expectation = ()-> require 'leven'
+		
+		Promise.resolve()
+			.then ()-> helpers.removePackage('leven')
+			.then ()-> expect(expectation).to.throw()
+			
+			.then ()-> packageInstall('leven@1.0.1', silent)
+			.then (installed)-> expect(installed).to.eql ['leven@1.0.1']
+			.then ()-> expect(expectation).not.to.throw()
+			.then ()-> helpers.packageVersion('leven')
+			.then (version)-> expect(version).to.equal '1.0.1'
+			
+			.then ()-> packageInstall('leven@^1.0.0', silent)
+			.then (installed)-> expect(installed).to.eql []
+			.then ()-> helpers.packageVersion('leven')
+			.then (version)-> expect(version).to.equal '1.0.1'
+			
+			.then ()-> packageInstall('leven@>2.0.0', silent)
+			.then (installed)-> expect(installed).to.eql ['leven@>2.0.0']
+			.then ()-> helpers.packageVersion('leven')
+			.then (version)-> expect(version).to.equal '2.1.0'
+
+
 
 	test "supports github repos", ()->
 		expectation = ()-> require 'leven'
@@ -78,6 +102,10 @@ suite "package-install", ()->
 			.then (installed)-> expect(installed).to.eql ['leven']
 			.then ()-> packageInstall('github:sindresorhus/leven', silent)
 			.then (installed)-> expect(installed).to.eql []
+			
+			.then ()-> helpers.removePackage('leven')
+			.then ()-> packageInstall('level@github:sindresorhus/leven', silent)
+			.then (installed)-> expect(installed).to.eql ['level@github:sindresorhus/leven']
 
 
 

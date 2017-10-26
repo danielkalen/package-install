@@ -86,6 +86,30 @@ suite "package-install", ()->
 			.then (version)-> expect(version).to.equal '2.1.0'
 
 
+	test "support for namespaced packages", ()->
+		expectation = ()-> require '@danielkalen/hash-sum'
+		
+		Promise.resolve()
+			.then ()-> helpers.removePackage('@danielkalen/hash-sum')
+			.then ()-> expect(expectation).to.throw()
+			
+			.then ()-> packageInstall('@danielkalen/hash-sum', silent)
+			.then (installed)-> expect(installed).to.eql ['@danielkalen/hash-sum']
+			.then ()-> expect(expectation).not.to.throw()
+			.then ()-> helpers.removePackage('@danielkalen/hash-sum')
+			
+			.then ()-> packageInstall('@danielkalen/hash-sum@1.0.3', silent)
+			.then (installed)-> expect(installed).to.eql ['@danielkalen/hash-sum@1.0.3']
+			.then ()-> expect(expectation).not.to.throw()
+			.then ()-> helpers.packageVersion('@danielkalen/hash-sum')
+			.then (version)-> expect(version).to.equal '1.0.3'
+			
+			.then ()-> packageInstall('@danielkalen/hash-sum@1.0.2', silent)
+			.then (installed)-> expect(installed).to.eql []
+			.then ()-> helpers.packageVersion('@danielkalen/hash-sum')
+			.then (version)-> expect(version).to.equal '1.0.3'
+
+
 
 	test "supports github repos", ()->
 		expectation = ()-> require 'leven'

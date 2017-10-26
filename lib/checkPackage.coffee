@@ -11,13 +11,18 @@ isInstalled = (targetModule, options={})->
 	options.cwd ?= process.cwd()
 	targetModule = targetModule[0] if typeof targetModule is 'object'
 	
-	if (split=targetModule.split('@')) and split[0].length
-		targetModule = split[0]
-		targetVersion = split[1]
+	if (split=targetModule.split('@'))
+		split = ['@'+split[1], split[2]] if split.length is 3
 
+		if split[0].length
+			targetModule = split[0]
+			targetVersion = split[1]
+
+	
 	if GITHUB_MODULE.test(targetModule)
 		targetModule = targetModule.replace GITHUB_MODULE, ''
 	
+
 	pkgFile = Path.resolve(options.cwd,'node_modules',targetModule,'package.json')
 	Promise.resolve()
 		.then ()-> fs.existsAsync(pkgFile)
@@ -28,10 +33,13 @@ isInstalled = (targetModule, options={})->
 		.catch promiseBreak.end	
 
 
+
+
 notInstalled = (targetModule, options)->
 	Promise.resolve([targetModule, options])
 		.spread isInstalled
 		.then (installed)-> not installed
+
 
 
 compareVersion = (currentVersion, targetVersion)-> switch

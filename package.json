@@ -5,6 +5,8 @@
   "main": "index.js",
   "mocha_opts": "-u tdd --compilers coffee:coffee-register --slow 8000 --timeout 15000",
   "scripts": {
+    "prepublishOnly": "npm run test:travis",
+    "postpublish": "git push",
     "test": "mocha $npm_package_mocha_opts --bail",
     "test:travis": "CI=1 mocha $npm_package_mocha_opts"
   },

@@ -1,8 +1,10 @@
 Promise = require 'bluebird'
 promiseBreak = require 'promise-break'
+Path = require 'path'
 fs = require 'fs-jetpack'
+extend = require 'extend'
 
-module.exports = (targets, options)->
+installModules = (targets, options)->
 	targets = [targets] if typeof targets is 'string'
 	installed = []
 	return installed if not Array.isArray(targets)
@@ -17,3 +19,15 @@ module.exports = (targets, options)->
 		.catch promiseBreak.end
 		.return installed
 
+
+installFromPackage = (packagePath='', options={})->
+	packagePath += '/package.json' if not packagePath.endsWith('package.json')
+	options = extend {}, options, {cwd:Path.dirname(packagePath)}
+	
+	Promise.resolve(packagePath)
+		.then require './getPackageDeps'
+		.then (deps)-> installModules deps, options
+
+
+module.exports = installModules
+module.exports.fromPackage = installFromPackage

@@ -27,3 +27,8 @@ exports.packageVersion = (target)->
 		.get 'version'
 
 
+exports.assertExists = (target)->
+	Promise.resolve()
+		.then ()-> fs.existsAsync(target)
+		.then (exists)-> require('chai').assert.ok exists, "#{target} exists"
+

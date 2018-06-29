@@ -5,6 +5,11 @@ module.exports = (packagePath)->
 
 	Promise.resolve(packagePath)
 		.then require './readPackageFile'
-		.then (pkg)-> extend {}, pkg.dependencies, pkg.devDependencies, pkg.peerDependencies
+		.then extractDeps
 		.then (deps)-> Object.keys(deps).map (dep)-> "#{dep}@#{deps[dep]}"
 
+
+extractDeps = (pkg)->
+	deps = extend {}, pkg.dependencies, pkg.peerDependencies
+	deps = extend deps, pkg.devDependencies unless process.env.NODE_ENV is 'production'
+	return deps

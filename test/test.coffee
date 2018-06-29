@@ -132,31 +132,43 @@ suite "package-install", ()->
 			.then (installed)-> expect(installed).to.eql ['level@github:sindresorhus/leven']
 
 
-	test "importing from package file", ()->
-		Promise.resolve()
-			.then ()-> fs.dirAsync './temp', empty:true
-			.then ()-> fs.writeAsync './temp/package.json', 
-				dependencies:
-					'extend':'^3.0.0'
-					'leven':'^2.0.0'
-				devDependencies:
-					'tuple':'*'
-					'batch':'~0.3.0'
+	suite "installing from package.json", ()->
+		suiteTeardown ()->
+			fs.removeAsync './temp'
+		
+		suiteSetup ()->
+			Promise.resolve()
+				.then ()-> fs.dirAsync './temp', empty:true
+				.then ()-> fs.writeAsync './temp/package.json', 
+					dependencies:
+						'extend':'^3.0.0'
+						'leven':'^2.0.0'
+					devDependencies:
+						'tuple':'*'
+						'batch':'~0.3.0'
 
-			.then ()-> packageInstall.fromPackage './temp', silent
-			.then (installed)-> expect(installed).to.eql ['extend@^3.0.0','leven@^2.0.0','tuple@*','batch@~0.3.0']
-			.then ()-> helpers.assertExists './temp/node_modules/leven'
-			
-			.then ()-> packageInstall.fromPackage './temp', silent
-			.then (installed)-> expect(installed).to.eql []
-			
-			.return ['./temp/node_modules/extend', './temp/node_modules/batch']
-			.map fs.removeAsync
-			.then ()-> packageInstall.fromPackage './temp', silent
-			.then (installed)-> expect(installed).to.eql ['extend@^3.0.0','batch@~0.3.0']
 
-			.finally ()-> fs.remove './temp'
+		test "will install missing dependencies", ()->
+			process.env.NODE_ENV = 'test'
+			Promise.resolve()
+				.then ()-> packageInstall.fromPackage './temp', silent
+				.then (installed)-> expect(installed).to.eql ['extend@^3.0.0','leven@^2.0.0','tuple@*','batch@~0.3.0']
+				.then ()-> helpers.assertExists './temp/node_modules/leven'
+				
+				.then ()-> packageInstall.fromPackage './temp', silent
+				.then (installed)-> expect(installed).to.eql []
+				
+				.return ['./temp/node_modules/extend', './temp/node_modules/batch']
+				.map fs.removeAsync
+				.then ()-> packageInstall.fromPackage './temp', silent
+				.then (installed)-> expect(installed).to.eql ['extend@^3.0.0','batch@~0.3.0']
 
+		test "will skip devDependencies if NODE_ENV is production", ()->
+			process.env.NODE_ENV = 'production'
+			Promise.resolve()
+				.then ()-> fs.dirAsync './temp/node_modules', empty:true
+				.then ()-> packageInstall.fromPackage './temp', silent
+				.then (installed)-> expect(installed).to.eql ['extend@^3.0.0','leven@^2.0.0']
 
 
 
